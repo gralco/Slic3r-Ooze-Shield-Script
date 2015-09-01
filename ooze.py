@@ -26,11 +26,9 @@ for line in list(enumerate(lines)):
     found_toolchange = False
     found_first_G92_E0 = True
   elif found_first_G92_E0 and ('E' in line[1]) and ('F' in line[1]) and ('Y' not in line[1]) and ('X' not in line[1]) and ('Z' not in line[1]):
-    print "FOUND ONE!\n"
-
     length = float(line[1][line[1].index('E')+1:line[1].index(' F')])
     flow_rate = float(line[1][line[1].index(' F')+2:])
-    lines[line[0]] = line[1][:line[1].index('E')+1] + str(3*length/4) + ' F' + str(3*flow_rate/4) + '\n'
+    lines[line[0]] = line[1][:line[1].index('E')+1] + str(1/1*length) + ' F' + str(1/1*flow_rate) + '\n'
   elif found_first_G92_E0 and "G92 E0" in line[1]:
     shield_line_range[-1].append(line[0]+2)
     found_first_G92_E0 = False
@@ -50,20 +48,19 @@ for i in range(len(shield_line_range)):
     elif ('E' in line) and ('F' in line) and ('Y' not in line) and ('X' not in line) and ('Z' not in line):
       length = float(line[line.index('E')+1:line.index(' F')])
       flow_rate = float(line[line.index(' F')+2:])
-      newline = line[:line.index('E')+1] + str(1*length/1) + ' F' + str(1*flow_rate/1) + '\n'
+      newline = line[:line.index('E')+1] + str(1/1*length) + ' F' + str(1/1*flow_rate) + '\n'
       secondary_extruder_shield_code[i].append(newline)
     else:
       secondary_extruder_shield_code[i].append(line)
 
 secondary_extruder_shield_code.append([])
 
-c=0
 i=0
 for line in list(enumerate(lines)):
   if "; Tool change from 0 to 1" in line[1]:
-    lines = lines[:i+1] + secondary_extruder_shield_code[c] + lines[i+1:]
-    i+=len(secondary_extruder_shield_code[c])
-    c+=1
+    lines = lines[:i+1] + secondary_extruder_shield_code[0] + lines[i+1:]
+    i+=len(secondary_extruder_shield_code[0])
+    secondary_extruder_shield_code.remove(secondary_extruder_shield_code[0])
   i+=1
 
 #Save
@@ -71,27 +68,3 @@ lines = ''.join(lines)
 gcode.seek(0)
 gcode.write(lines)
 gcode.close()
-
-
-"""
-#Logic
-first_layer_height_percent = float(lines[find_gcode_line(lines, "; first_layer_height = ", True)].split(' ')[3].replace('%', '').strip())/100.0
-#print "First Layer Height Percent: " + str(first_layer_height_percent)
-layer_height = float(lines[find_gcode_line(lines, "; layer_height = ", True)].split(' ')[3].strip())
-#print "Layer Height: " + str(layer_height)
-#retract_lift = float(lines[find_gcode_line(lines, "; retract_lift = ", True)].split(' ')[3].strip())
-#print "Retract Lift: " + str(retract_lift)
-#z_height = z_offset+first_layer_height_percent*layer_height+layer_height*(int(layer_number)-1)
-
-
-#Edit
-line_number = 0
-lines.insert(line_number, "; WORK HERE\n")
-
-
-#Save
-lines = ''.join(lines)
-gcode.seek(0)
-gcode.write(lines)
-gcode.close()
-"""
